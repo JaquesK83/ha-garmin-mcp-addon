@@ -1,0 +1,23 @@
+name: "Garmin MCP"
+version: "1.0.0"
+slug: "garmin_mcp"
+description: "MCP server die Garmin Connect data ontsluit voor Claude"
+url: "https://github.com/k8sautom8/garmin_mcp"
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: application
+boot: auto
+ports:
+  8000/tcp: 8000
+ports_description:
+  8000/tcp: "MCP Streamable HTTP endpoint (/mcp)"
+options:
+  garmin_email: ""
+  garmin_password: ""
+  garmin_mfa_code: ""
+schema:
+  garmin_email: str
+  garmin_password: password
+  garmin_mfa_code: str?
