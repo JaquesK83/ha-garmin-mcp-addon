@@ -21,23 +21,19 @@ if [ ! -f "$TOKENSTORE/oauth1_token.json" ] || [ ! -f "$TOKENSTORE/oauth2_token.
   GARMIN_TOKENSTORE_PATH="$TOKENSTORE" uv run python - <<'PYEOF'
 import os
 import sys
-from garminconnect import Garmin
+import garth
 
 email = os.environ["GARMIN_EMAIL"]
 password = os.environ["GARMIN_PASSWORD"]
 tokenstore = os.environ["GARMIN_TOKENSTORE_PATH"]
 mfa_code = os.environ.get("GARMIN_MFA_CODE")
 
-def prompt_mfa():
-    if mfa_code:
-        return mfa_code
-    print("MFA-code vereist maar GARMIN_MFA_CODE niet ingesteld.", file=sys.stderr)
-    sys.exit(1)
-
 try:
-    garmin = Garmin(email=email, password=password, prompt_mfa=prompt_mfa)
-    garmin.login()
-    garmin.garth.dump(tokenstore)
+    if mfa_code:
+        garth.login(email, password, prompt_mfa=lambda: mfa_code)
+    else:
+        garth.login(email, password)
+    garth.save(tokenstore)
     print("Login gelukt, tokens opgeslagen in", tokenstore)
 except Exception as e:
     print("Login mislukt:", e, file=sys.stderr)
