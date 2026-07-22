@@ -12,11 +12,12 @@ if [ -n "$MFA" ]; then
 fi
 
 TOKENSTORE=/data/garminconnect
-mkdir -p "$TOKENSTORE"
 cd /app
 
 if [ ! -f "$TOKENSTORE/oauth1_token.json" ] || [ ! -f "$TOKENSTORE/oauth2_token.json" ]; then
-  echo "Geen opgeslagen Garmin-tokens gevonden — eerste login uitvoeren..."
+  echo "Geen (volledige) opgeslagen Garmin-tokens gevonden — map wissen en eerste login uitvoeren..."
+  rm -rf "$TOKENSTORE"
+
   GARMIN_TOKENSTORE_PATH="$TOKENSTORE" uv run python - <<'PYEOF'
 import os
 import sys
