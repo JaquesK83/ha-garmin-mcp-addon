@@ -46,4 +46,8 @@ PYEOF
 fi
 
 export GARMINTOKENS="$TOKENSTORE"
+export GARMIN_MCP_TRANSPORT=streamable-http
+export GARMIN_MCP_HOST=0.0.0.0
+export GARMIN_MCP_PORT=8000
+
 exec uv run garmin-mcp
