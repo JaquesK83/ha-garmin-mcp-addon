@@ -18,25 +18,32 @@ if [ ! -f "$TOKENSTORE/oauth1_token.json" ] || [ ! -f "$TOKENSTORE/oauth2_token.
   echo "Geen (volledige) opgeslagen Garmin-tokens gevonden — map wissen en eerste login uitvoeren..."
   rm -rf "$TOKENSTORE"
 
-  GARMIN_TOKENSTORE_PATH="$TOKENSTORE" uv run python - <<'PYEOF'
+  echo "=== OMGEVINGSVARIABELEN DIAGNOSE ==="
+  echo "HOME=$HOME"
+  echo "GARMINTOKENS=$GARMINTOKENS"
+  echo "===================================="
+
+  uv run python - <<'PYEOF'
 import os
 import sys
-import garth
+import traceback
+
+print("HOME env:", os.environ.get("HOME"), file=sys.stderr)
+print("GARMINTOKENS env:", os.environ.get("GARMINTOKENS"), file=sys.stderr)
+
+from garminconnect import Garmin
 
 email = os.environ["GARMIN_EMAIL"]
 password = os.environ["GARMIN_PASSWORD"]
-tokenstore = os.environ["GARMIN_TOKENSTORE_PATH"]
-mfa_code = os.environ.get("GARMIN_MFA_CODE")
 
 try:
-    if mfa_code:
-        garth.login(email, password, prompt_mfa=lambda: mfa_code)
-    else:
-        garth.login(email, password)
-    garth.save(tokenstore)
-    print("Login gelukt, tokens opgeslagen in", tokenstore)
-except Exception as e:
-    print("Login mislukt:", e, file=sys.stderr)
+    garmin = Garmin(email=email, password=password)
+    garmin.login()
+    print("Login gelukt")
+except Exception:
+    print("=== VOLLEDIGE TRACEBACK ===", file=sys.stderr)
+    traceback.print_exc()
+    print("=== EINDE TRACEBACK ===", file=sys.stderr)
     sys.exit(1)
 PYEOF
 fi
