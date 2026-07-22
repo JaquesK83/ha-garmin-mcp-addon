@@ -11,24 +11,20 @@ if [ -n "$MFA" ]; then
   export GARMIN_MFA_CODE="$MFA"
 fi
 
-export GARMIN_MCP_TRANSPORT=streamable-http
-export GARMIN_MCP_HOST=0.0.0.0
-export GARMIN_MCP_PORT=8000
-export GARMINTOKENS=/data/garminconnect
-
-mkdir -p "$GARMINTOKENS"
+TOKENSTORE=/data/garminconnect
+mkdir -p "$TOKENSTORE"
 cd /app
 
-if [ ! -f "$GARMINTOKENS/oauth1_token.json" ] || [ ! -f "$GARMINTOKENS/oauth2_token.json" ]; then
+if [ ! -f "$TOKENSTORE/oauth1_token.json" ] || [ ! -f "$TOKENSTORE/oauth2_token.json" ]; then
   echo "Geen opgeslagen Garmin-tokens gevonden — eerste login uitvoeren..."
-  uv run python - <<'PYEOF'
+  GARMIN_TOKENSTORE_PATH="$TOKENSTORE" uv run python - <<'PYEOF'
 import os
 import sys
 from garminconnect import Garmin
 
 email = os.environ["GARMIN_EMAIL"]
 password = os.environ["GARMIN_PASSWORD"]
-tokenstore = os.environ["GARMINTOKENS"]
+tokenstore = os.environ["GARMIN_TOKENSTORE_PATH"]
 mfa_code = os.environ.get("GARMIN_MFA_CODE")
 
 def prompt_mfa():
@@ -48,4 +44,5 @@ except Exception as e:
 PYEOF
 fi
 
+export GARMINTOKENS="$TOKENSTORE"
 exec uv run garmin-mcp
