@@ -10,6 +10,9 @@ WORKDIR /app
 RUN git clone --depth 1 https://github.com/k8sautom8/garmin_mcp.git .
 RUN uv sync --no-dev
 
+# Forceer de nieuwste Garmin-bibliotheken (oude versies werken niet meer met de Garmin-login)
+RUN uv pip install --python /app/.venv/bin/python --upgrade garminconnect garth
+
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
 
