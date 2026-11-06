@@ -12,38 +12,16 @@ if [ -n "$MFA" ]; then
 fi
 
 TOKENSTORE=/data/garminconnect
-cd /app
 
-if [ ! -f "$TOKENSTORE/oauth1_token.json" ] || [ ! -f "$TOKENSTORE/oauth2_token.json" ]; then
-  echo "Geen (volledige) opgeslagen Garmin-tokens gevonden — map wissen en eerste login uitvoeren..."
-  rm -rf "$TOKENSTORE"
-
-  uv run python - <<'PYEOF'
-import os
-import sys
-from garminconnect import Garmin
-
-email = os.environ["GARMIN_EMAIL"]
-password = os.environ["GARMIN_PASSWORD"]
-tokenstore = "/data/garminconnect"
-mfa_code = os.environ.get("GARMIN_MFA_CODE")
-
-def prompt_mfa():
-    if mfa_code:
-        return mfa_code
-    print("MFA-code vereist maar GARMIN_MFA_CODE niet ingesteld.", file=sys.stderr)
-    sys.exit(1)
-
-try:
-    garmin = Garmin(email=email, password=password, prompt_mfa=prompt_mfa)
-    garmin.login()
-    garmin.garth.dump(tokenstore)
-    print("Login gelukt, tokens opgeslagen in", tokenstore)
-except Exception as e:
-    print("Login mislukt:", e, file=sys.stderr)
-    sys.exit(1)
-PYEOF
+# Oude tokens van de vorige Garmin-bibliotheek opruimen;
+# de nieuwe versie maakt zelf nieuwe tokens aan bij de eerste login
+if [ -f "$TOKENSTORE/oauth1_token.json" ] || [ -f "$TOKENSTORE/oauth2_token.json" ]; then
+  echo "Oude Garmin-tokens gevonden — verwijderen..."
+  rm -f "$TOKENSTORE/oauth1_token.json" "$TOKENSTORE/oauth2_token.json"
 fi
+mkdir -p "$TOKENSTORE"
+
+cd /app
 
 export GARMINTOKENS="$TOKENSTORE"
 export GARMIN_MCP_TRANSPORT=streamable-http
