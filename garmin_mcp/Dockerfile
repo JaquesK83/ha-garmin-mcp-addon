@@ -8,13 +8,12 @@ RUN pip install --no-cache-dir uv
 
 WORKDIR /app
 RUN git clone --depth 1 https://github.com/k8sautom8/garmin_mcp.git .
+
+# Werk het lockbestand bij naar de nieuwste Garmin-bibliotheken
+# (oude versies werken niet meer met de Garmin-login)
+RUN uv lock --upgrade-package garminconnect --upgrade-package garth
+
 RUN uv sync --no-dev
-
-# Forceer de nieuwste Garmin-bibliotheken (oude versies werken niet meer met de Garmin-login)
-RUN uv pip install --python /app/.venv/bin/python --upgrade garminconnect garth
-
-# Voorkom dat 'uv run' bij het opstarten de oude versies terugzet
-ENV UV_NO_SYNC=1
 
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
