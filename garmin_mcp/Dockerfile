@@ -13,6 +13,9 @@ RUN uv sync --no-dev
 # Forceer de nieuwste Garmin-bibliotheken (oude versies werken niet meer met de Garmin-login)
 RUN uv pip install --python /app/.venv/bin/python --upgrade garminconnect garth
 
+# Voorkom dat 'uv run' bij het opstarten de oude versies terugzet
+ENV UV_NO_SYNC=1
+
 COPY run.sh /run.sh
 RUN chmod a+x /run.sh
 
